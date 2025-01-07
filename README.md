@@ -1,4 +1,4 @@
 - 👋 Hi there! I'm @shane-ks. 
-- 🔭 I’m currently working on building a numerical integration solver that uses a CNN.
-- 🌱 I’m currently learning JAX.
-- 📫 How to reach me: skissinger@college.harvard.edu
+- 🔭 I’m currently mostly working on game dev.
+- 🌱 I’ve been diving into open source C# game engines.
+- 📫 How to reach me: shane.kissinger4@gmail.com
