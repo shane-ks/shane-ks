@@ -94,6 +94,23 @@ are complete and checked.
 
 ---
 
+## 8. Branding / logo generation (new feature)
+
+- [x] **Credits, the same way.** A brand kit costs `LOGO_CREDIT_COST` (2) credits,
+  reserved atomically up front via `reserve_credits(user, amount)` and refunded
+  on failure (`refund_credits`) — same integrity guarantees as name search.
+- [x] **Untrusted SVG is sanitized** server-side (`src/lib/svg.ts`): `<script>`,
+  `<foreignObject>`, `<iframe>`, `<image>`, inline `on*` handlers, external
+  `href`s, and `javascript:` are stripped; output is size-bounded and validated.
+  Covered by unit tests.
+- [x] **Rendered as `<img src="data:image/svg+xml,…">`** in the browser, which
+  cannot execute scripts — defense in depth over the sanitizer.
+- [x] **Same guards as name search** — same-origin/CSRF check, auth, input-length
+  caps, and the shared per-user rate limit.
+- [x] Generated kits are persisted to the RLS-protected `brand_kits` table.
+
+---
+
 ## Operational setup (account owner, not code — see README)
 
 These require credentials/accounts and so are intentionally out of scope of "the

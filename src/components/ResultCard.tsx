@@ -29,7 +29,13 @@ function hostname(url: string): string {
   }
 }
 
-export default function ResultCard({ result }: { result: NameResult }) {
+export default function ResultCard({
+  result,
+  onCreateLogo,
+}: {
+  result: NameResult;
+  onCreateLogo?: (name: string) => void;
+}) {
   const style = STATUS_STYLES[result.status];
 
   return (
@@ -84,6 +90,15 @@ export default function ResultCard({ result }: { result: NameResult }) {
             ))}
           </ul>
         </div>
+      )}
+
+      {onCreateLogo && (
+        <button
+          onClick={() => onCreateLogo(result.name)}
+          className="mt-4 w-full rounded-lg border border-brand-500/30 bg-brand-600/10 px-3 py-2 text-sm font-medium text-brand-200 transition hover:bg-brand-600/20"
+        >
+          🎨 Design a logo for {result.name}
+        </button>
       )}
     </div>
   );

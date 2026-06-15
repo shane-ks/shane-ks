@@ -6,6 +6,8 @@ import {
   formatUsd,
   perCreditLabel,
   FREE_SIGNUP_CREDITS,
+  NAME_CREDIT_COST,
+  LOGO_CREDIT_COST,
 } from "../src/lib/credits";
 
 const perCredit = (id: string) => {
@@ -60,4 +62,12 @@ test("perCreditLabel computes the unit price", () => {
 
 test("free signup credits are positive", () => {
   assert.ok(FREE_SIGNUP_CREDITS > 0);
+});
+
+test("per-action credit costs are sane", () => {
+  assert.ok(NAME_CREDIT_COST >= 1);
+  // A brand kit is a richer deliverable than a name search.
+  assert.ok(LOGO_CREDIT_COST >= NAME_CREDIT_COST);
+  // A new account can afford at least one action with its free credits.
+  assert.ok(FREE_SIGNUP_CREDITS >= NAME_CREDIT_COST);
 });

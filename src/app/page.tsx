@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
-import { FREE_SIGNUP_CREDITS } from "@/lib/credits";
+import { FREE_SIGNUP_CREDITS, LOGO_CREDIT_COST } from "@/lib/credits";
 import type { NameResult } from "@/lib/types";
 import Wordmark from "@/components/Wordmark";
 import RadarHero from "@/components/RadarHero";
 import ResultCard from "@/components/ResultCard";
 import PackCards from "@/components/PackCards";
+
+// Static, trusted sample logos for the branding showcase (safe to inline).
+const WORDMARK_SVG = `<svg viewBox="0 0 240 80" width="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="34" r="7" fill="#10b981"/><path d="M20 27c-5 3-5 11 0 14 5-3 5-11 0-14z" fill="#fff"/><text x="38" y="48" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#0f172a">Verda<tspan fill="#10b981">brew</tspan></text></svg>`;
+const MONOGRAM_SVG = `<svg viewBox="0 0 120 120" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="104" height="104" rx="26" fill="#0f172a"/><path d="M40 42l20 40 20-40" fill="none" stroke="#10b981" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const EMBLEM_SVG = `<svg viewBox="0 0 120 120" width="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="50" fill="none" stroke="#4f46e5" stroke-width="3"/><circle cx="60" cy="60" r="40" fill="none" stroke="#4f46e5" stroke-width="1" opacity="0.4"/><path d="M60 44c-9 5-9 22 0 27 9-5 9-22 0-27z" fill="#10b981"/><text x="60" y="98" text-anchor="middle" font-family="Georgia, serif" font-size="11" letter-spacing="3" fill="#0f172a">VERDABREW</text></svg>`;
+const ABSTRACT_SVG = `<svg viewBox="0 0 120 120" width="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="48" cy="56" r="28" fill="#10b981" opacity="0.85"/><circle cx="72" cy="56" r="28" fill="#4f46e5" opacity="0.7"/><circle cx="60" cy="44" r="20" fill="#0f172a"/></svg>`;
 
 const SHOWCASE: NameResult[] = [
   {
@@ -152,7 +158,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-6 py-5 text-sm text-slate-400">
           <span>🔎 Real web search, not guesses</span>
           <span>🧾 Receipts for taken names</span>
-          <span>⚡ Results in seconds</span>
+          <span>🎨 Logos &amp; brand kits</span>
           <span>♾️ Credits never expire</span>
         </div>
       </section>
@@ -202,14 +208,58 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Branding feature */}
+      <section className="mx-auto max-w-6xl px-6 py-12">
+        <div className="glass rounded-3xl p-8 sm:p-10">
+          <div className="mb-8 text-center">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-600/10 px-4 py-1.5 text-xs text-brand-200">
+              🎨 New
+            </div>
+            <h2 className="text-3xl font-bold sm:text-4xl">
+              Found a winner? Design its brand in a click.
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-slate-400">
+              Turn any available name into logo concepts, a color palette, and a
+              font pairing — as crisp, downloadable vector files. {LOGO_CREDIT_COST}{" "}
+              credits per brand kit.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              { label: "Wordmark", svg: WORDMARK_SVG },
+              { label: "Monogram", svg: MONOGRAM_SVG },
+              { label: "Emblem", svg: EMBLEM_SVG },
+              { label: "Abstract mark", svg: ABSTRACT_SVG },
+            ].map((t) => (
+              <div
+                key={t.label}
+                className="overflow-hidden rounded-2xl border border-white/10 bg-white/5"
+              >
+                <div
+                  className="flex aspect-square items-center justify-center bg-white p-6"
+                  dangerouslySetInnerHTML={{ __html: t.svg }}
+                />
+                <div className="p-3 text-center text-xs font-medium text-slate-300">
+                  {t.label}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-6 text-center text-xs text-slate-500">
+            Sample concepts for the name “Verdabrew.”
+          </p>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-5xl px-6 py-20">
         <h2 className="text-center text-3xl font-bold sm:text-4xl">
           Simple credit pricing
         </h2>
         <p className="mx-auto mb-12 mt-3 max-w-xl text-center text-slate-400">
-          1 credit = 1 scan (a full batch of names, each checked for
-          availability). Buy once, use anytime — credits never expire.
+          One pool of credits for everything: a name scan costs 1 credit, a full
+          brand kit costs {LOGO_CREDIT_COST}. Buy once, use anytime — credits
+          never expire.
         </p>
         <PackCards />
         <p className="mt-6 text-center text-xs text-slate-500">
@@ -232,6 +282,10 @@ export default function Home() {
           <Faq
             q="What is a credit?"
             a={`One credit runs one full scan — a batch of brandable names, each checked against the live web. New accounts get ${FREE_SIGNUP_CREDITS} free credits, and a credit is automatically refunded if a scan fails.`}
+          />
+          <Faq
+            q="Can it design a logo too?"
+            a={`Yes. Once you've found an open name, generate a brand kit for it — ${LOGO_CREDIT_COST} credits gets you several distinct logo concepts as downloadable vector (SVG) files, plus a matching color palette and font pairing.`}
           />
           <Faq
             q="Do credits expire?"

@@ -26,3 +26,22 @@ export interface Profile {
   email: string | null;
   credits: number;
 }
+
+export interface PaletteColor {
+  name: string;
+  hex: string;
+}
+
+export interface LogoConcept {
+  style: string;
+  rationale?: string;
+  /** Sanitized, self-contained SVG markup. */
+  svg: string;
+}
+
+export interface BrandKit {
+  name: string;
+  palette: PaletteColor[];
+  fonts: { heading: string; body: string };
+  concepts: LogoConcept[];
+}

@@ -1,12 +1,13 @@
 # NameRadar
 
-**Find the company name nobody's using.** Describe your idea, NameRadar
-brainstorms brandable company names, then scans the live web to tell you which
-are already taken — _with evidence URLs_ — and which are wide open to claim.
+**Find the company name nobody's using — then design its brand.** Describe your
+idea, NameRadar brainstorms brandable company names, scans the live web to tell
+you which are already taken — _with evidence URLs_ — and which are wide open to
+claim, then turns any winner into logo concepts and a brand kit.
 
 Built with **Next.js 15** (App Router), **Supabase** (auth + Postgres), and
-**Stripe** (one-time $10 lifetime pass). The naming engine is powered by Claude
-with the native web-search tool.
+**Stripe** (one-time credit packs). Both the naming engine (with the native
+web-search tool) and the logo/brand designer are powered by Claude.
 
 ---
 
@@ -17,11 +18,15 @@ with the native web-search tool.
 3. **Check availability** — each name is researched against the live web and
    classified as `available`, `taken`, or `uncertain`. Taken names come with
    real evidence URLs of the companies already using them.
+4. **Design the brand** — turn any name into several vector (SVG) logo concepts
+   plus a color palette and font pairing, all downloadable.
 
 ### Monetization — credits
 
-- **1 credit = 1 search** (a full batch of brandable names, each checked for
-  availability with evidence).
+One shared pool of credits funds everything:
+
+- **1 credit = 1 name search** (a full batch of names, each availability-checked).
+- **2 credits = 1 brand kit** (several logo concepts + palette + fonts).
 - New accounts start with **3 free credits**.
 - Credits are sold in **one-time packs** (no subscription) — buy once, use
   anytime, credits never expire:
@@ -49,8 +54,9 @@ webhook grants the credits.
 | Auth           | Supabase email magic-link (passwordless)                              |
 | Database       | Supabase Postgres with Row Level Security                             |
 | Naming engine  | `@anthropic-ai/sdk` + `web_search_20250305` server tool               |
+| Brand engine   | Claude generates self-contained SVG logos + palette + fonts (sanitized) |
 | Payments       | Stripe Checkout (one-time credit packs) + idempotent webhook            |
-| Entitlement    | `profiles.credits`, spent atomically per search, granted by the webhook |
+| Entitlement    | `profiles.credits`, spent atomically per action, granted by the webhook |
 
 Key paths:
 
@@ -63,18 +69,22 @@ src/
     auth/callback/route.ts    Magic-link redirect handler
     auth/signout/route.ts
     api/
-      generate/route.ts       Brainstorm + research + persist + quota gate
-      me/route.ts             Current user + entitlement
+      generate/route.ts       Brainstorm + research + persist + credit gate
+      logo/route.ts           Generate a brand kit + credit gate (2 credits)
+      me/route.ts             Current user + credit balance
       searches/route.ts       Search history
       stripe/checkout/route.ts
-      stripe/webhook/route.ts Grants lifetime pass on payment
+      stripe/webhook/route.ts Grants credits on payment
   components/
-    AppClient.tsx             Main interactive UI
-    ResultCard.tsx            Per-name result with evidence links
+    AppClient.tsx             Main interactive UI (Find names / Design a brand)
+    ResultCard.tsx            Per-name result with evidence + "design a logo"
+    LogoStudio.tsx            Brand-kit generator UI
   lib/
     anthropic.ts              brainstormNames() + researchNames()
+    logo.ts                   generateBrandKit() — SVG logos + palette + fonts
+    svg.ts                    SVG sanitizer + data-URI helper (unit-tested)
     stripe.ts
-    credits.ts                catalog of credit packs (server-trusted pricing)
+    credits.ts                credit packs + per-action costs (server-trusted)
     parse.ts                  pure model-output parsing helpers (unit-tested)
     request.ts                same-origin/CSRF guard
     supabase/{client,server,admin}.ts
@@ -82,6 +92,7 @@ src/
 supabase/migrations/
   0001_init.sql               profiles, searches, name_results, RLS
   0002_credits.sql            credits, purchases (idempotency), credit RPCs
+  0003_branding.sql           brand_kits + multi-credit reserve/refund RPCs
 test/                         unit tests (npm test)
 ```
 
@@ -99,11 +110,11 @@ cp .env.example .env.local
 ### 2. Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. Run **both** migrations in order — `supabase/migrations/0001_init.sql` then
-   `0002_credits.sql` (SQL Editor, or `supabase db push` with the CLI). They
-   create the `profiles`, `searches`, `name_results`, and `purchases` tables,
-   RLS policies, the new-user trigger, and the credit RPCs (`reserve_credit`,
-   `refund_credit`, `grant_credits`).
+2. Run the migrations in order — `0001_init.sql`, `0002_credits.sql`, then
+   `0003_branding.sql` (SQL Editor, or `supabase db push` with the CLI). They
+   create the `profiles`, `searches`, `name_results`, `purchases`, and
+   `brand_kits` tables, RLS policies, the new-user trigger, and the credit RPCs
+   (`reserve_credit(s)`, `refund_credit(s)`, `grant_credits`).
 3. Copy your Project URL + anon key + **service role** key into `.env.local`.
 4. **Auth → URL Configuration**: set the Site URL and add
    `http://localhost:3000/auth/callback` (and your production equivalent) as a
@@ -112,9 +123,9 @@ cp .env.example .env.local
 ### 3. Anthropic
 
 Add an `ANTHROPIC_API_KEY` from [console.anthropic.com](https://console.anthropic.com).
-The naming engine uses the model in `ANTHROPIC_MODEL` (default
-`claude-opus-4-8` for the highest-quality names; set `claude-sonnet-4-6` to
-roughly halve token cost) with the web-search tool.
+The naming engine (with the web-search tool) and the logo/brand designer both
+use the model in `ANTHROPIC_MODEL` (default `claude-opus-4-8` for the
+highest-quality output; set `claude-sonnet-4-6` to roughly halve token cost).
 
 ### 4. Stripe
 

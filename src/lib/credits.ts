@@ -26,6 +26,12 @@ export interface CreditPack {
 
 export const FREE_SIGNUP_CREDITS = 3;
 
+// Per-action credit costs. A name search returns a batch of names; a brand kit
+// returns several vector logo concepts plus a palette and font pairing, so it
+// costs a little more.
+export const NAME_CREDIT_COST = 1;
+export const LOGO_CREDIT_COST = 2;
+
 export const CREDIT_PACKS: CreditPack[] = [
   {
     id: "starter",
