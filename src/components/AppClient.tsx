@@ -5,6 +5,7 @@ import type { NameResult } from "@/lib/types";
 import { FREE_SIGNUP_CREDITS } from "@/lib/credits";
 import ResultCard from "./ResultCard";
 import PackCards from "./PackCards";
+import Wordmark from "./Wordmark";
 
 interface Props {
   email: string;
@@ -118,8 +119,8 @@ export default function AppClient({ email, initialCredits }: Props) {
     <div className="min-h-screen">
       <header className="border-b border-white/10">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <a href="/" className="text-lg font-bold">
-            Name<span className="gradient-text">Void</span>
+          <a href="/" className="text-lg">
+            <Wordmark />
           </a>
           <div className="flex items-center gap-4 text-sm">
             <span

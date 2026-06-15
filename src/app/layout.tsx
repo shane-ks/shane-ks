@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -6,12 +7,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "NameVoid — Find company names nobody is using",
-    template: "%s · NameVoid",
+    default: `${BRAND.name} — ${BRAND.tagline}`,
+    template: `%s · ${BRAND.name}`,
   },
-  description:
-    "Describe your idea, brainstorm brandable company names, and instantly see which ones are free and which are already taken — with evidence.",
-  applicationName: "NameVoid",
+  description: BRAND.description,
+  applicationName: BRAND.name,
   keywords: [
     "company name generator",
     "business name availability",
@@ -20,17 +20,15 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    siteName: "NameVoid",
-    title: "NameVoid — Find a company name nobody owns",
-    description:
-      "Brainstorm brandable names and instantly see which are free and which are taken — with evidence URLs.",
+    siteName: BRAND.name,
+    title: `${BRAND.name} — ${BRAND.tagline}`,
+    description: BRAND.description,
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "NameVoid — Find a company name nobody owns",
-    description:
-      "Brainstorm brandable names and see which are free vs. taken — with evidence.",
+    title: `${BRAND.name} — ${BRAND.tagline}`,
+    description: BRAND.description,
   },
 };
 

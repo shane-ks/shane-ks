@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
 import { getPack } from "@/lib/credits";
+import { BRAND } from "@/lib/brand";
 import { isSameOrigin } from "@/lib/request";
 
 export async function POST(request: Request) {
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
           currency: "usd",
           unit_amount: pack.priceCents,
           product_data: {
-            name: `NameVoid — ${pack.name} (${pack.credits} credits)`,
+            name: `${BRAND.name} — ${pack.name} (${pack.credits} credits)`,
             description: `${pack.credits} name searches with live availability checks.`,
           },
         },

@@ -1,4 +1,4 @@
-# Production-Readiness Audit — NameVoid
+# Production-Readiness Audit — NameRadar
 
 **Question:** Can this be deployed right now (ignoring missing API keys) and make
 money? Is it high quality?

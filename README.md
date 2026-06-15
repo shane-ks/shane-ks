@@ -1,8 +1,8 @@
-# NameVoid
+# NameRadar
 
-**Find a company name nobody owns.** Describe your idea, NameVoid brainstorms
-brandable company names, then researches the live web to tell you which are
-already taken — _with evidence URLs_ — and which are wide open to claim.
+**Find the company name nobody's using.** Describe your idea, NameRadar
+brainstorms brandable company names, then scans the live web to tell you which
+are already taken — _with evidence URLs_ — and which are wide open to claim.
 
 Built with **Next.js 15** (App Router), **Supabase** (auth + Postgres), and
 **Stripe** (one-time $10 lifetime pass). The naming engine is powered by Claude

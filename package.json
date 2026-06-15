@@ -1,8 +1,8 @@
 {
-  "name": "namevoid",
+  "name": "nameradar",
   "version": "1.0.0",
   "private": true,
-  "description": "Find company names nobody is using yet.",
+  "description": "Find the company name nobody's using.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

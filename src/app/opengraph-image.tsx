@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
+import { BRAND } from "@/lib/brand";
 
-export const alt = "NameVoid — Find a company name nobody owns";
+export const alt = `${BRAND.name} — ${BRAND.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -22,23 +23,23 @@ export default function OgImage() {
         }}
       >
         <div style={{ fontSize: 40, color: "#a5b4fc", fontWeight: 700 }}>
-          NameVoid
+          {BRAND.name}
         </div>
-        <div style={{ fontSize: 84, fontWeight: 800, lineHeight: 1.05, marginTop: 24 }}>
-          Find a company name
+        <div style={{ fontSize: 82, fontWeight: 800, lineHeight: 1.05, marginTop: 24 }}>
+          Find the company name
         </div>
         <div
           style={{
-            fontSize: 84,
+            fontSize: 82,
             fontWeight: 800,
             lineHeight: 1.05,
             color: "#818cf8",
           }}
         >
-          nobody owns.
+          nobody&apos;s using.
         </div>
         <div style={{ fontSize: 34, color: "#94a3b8", marginTop: 32 }}>
-          Brainstorm brandable names · check availability with evidence
+          Brainstorm brandable names · scan availability with evidence
         </div>
       </div>
     ),

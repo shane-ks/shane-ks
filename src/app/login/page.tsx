@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import Wordmark from "@/components/Wordmark";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -33,8 +34,8 @@ function LoginForm() {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-md">
-        <Link href="/" className="mb-8 block text-center text-xl font-bold">
-          Name<span className="gradient-text">Void</span>
+        <Link href="/" className="mb-8 flex justify-center">
+          <Wordmark className="text-xl" />
         </Link>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-8">

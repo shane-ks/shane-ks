@@ -1,4 +1,4 @@
--- NameVoid schema
+-- NameRadar schema
 -- Profiles, searches, and per-name results with row level security.
 
 -- ---------------------------------------------------------------------------
