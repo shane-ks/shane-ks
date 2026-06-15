@@ -9,5 +9,3 @@ export function getStripe(): Stripe {
   cached = new Stripe(key, { apiVersion: "2025-02-24.acacia" });
   return cached;
 }
-
-export const LIFETIME_PRICE_CENTS = 1000; // $10.00

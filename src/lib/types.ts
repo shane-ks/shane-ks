@@ -24,6 +24,5 @@ export interface SearchRecord {
 export interface Profile {
   id: string;
   email: string | null;
-  has_lifetime_pass: boolean;
-  free_searches_used: number;
+  credits: number;
 }

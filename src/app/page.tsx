@@ -1,6 +1,6 @@
 import Link from "next/link";
-
-const FREE_LIMIT = Number(process.env.NEXT_PUBLIC_FREE_SEARCH_LIMIT || 3);
+import { FREE_SIGNUP_CREDITS } from "@/lib/credits";
+import PackCards from "@/components/PackCards";
 
 function Feature({ title, body }: { title: string; body: string }) {
   return (
@@ -45,9 +45,9 @@ export default function Home() {
           Find a company name <span className="gradient-text">nobody owns</span>.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-slate-400">
-          Describe your idea. NameVoid brainstorms brandable names, then searches
-          the web to tell you which are already taken — with receipts — and which
-          are wide open for you to claim.
+          Describe your idea. NameVoid brainstorms brandable company names, then
+          searches the web to tell you which are already taken — with receipts —
+          and which are wide open for you to claim.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
@@ -64,7 +64,7 @@ export default function Home() {
           </Link>
         </div>
         <p className="mt-4 text-xs text-slate-500">
-          {FREE_LIMIT} free searches · no credit card required
+          {FREE_SIGNUP_CREDITS} free credits on signup · no credit card required
         </p>
       </section>
 
@@ -86,47 +86,29 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="relative z-10 mx-auto max-w-2xl px-6 py-16">
-        <h2 className="mb-10 text-center text-3xl font-bold">
-          One price. Forever.
+      <section id="pricing" className="relative z-10 mx-auto max-w-5xl px-6 py-16">
+        <h2 className="mb-2 text-center text-3xl font-bold">
+          Simple credit pricing
         </h2>
-        <div className="glow rounded-3xl border border-brand-500/30 bg-gradient-to-b from-white/10 to-white/5 p-8 text-center">
-          <div className="text-sm font-medium uppercase tracking-wider text-brand-300">
-            Lifetime Pass
-          </div>
-          <div className="mt-3 flex items-baseline justify-center gap-1">
-            <span className="text-5xl font-bold">$10</span>
-            <span className="text-slate-400">once</span>
-          </div>
-          <p className="mt-3 text-sm text-slate-400">
-            Pay once, search forever. No subscription, no renewals.
-          </p>
-          <ul className="mx-auto mt-6 max-w-xs space-y-2 text-left text-sm text-slate-300">
-            {[
-              "Unlimited name searches",
-              "Live web availability checks",
-              "Evidence URLs for taken names",
-              "Full searchable history",
-            ].map((f) => (
-              <li key={f} className="flex items-center gap-2">
-                <span className="text-emerald-400">✓</span>
-                {f}
-              </li>
-            ))}
-          </ul>
-          <Link
-            href="/app"
-            className="mt-8 inline-block w-full rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-500"
-          >
-            Get the Lifetime Pass
-          </Link>
-          <p className="mt-3 text-xs text-slate-500">
-            Start with {FREE_LIMIT} free searches first.
-          </p>
-        </div>
+        <p className="mx-auto mb-10 max-w-xl text-center text-slate-400">
+          1 credit = 1 search (a full batch of names, each checked for
+          availability). Buy once, use anytime — credits never expire.
+        </p>
+        <PackCards />
+        <p className="mt-6 text-center text-xs text-slate-500">
+          Every account starts with {FREE_SIGNUP_CREDITS} free credits.
+        </p>
       </section>
 
       <footer className="relative z-10 border-t border-white/10 py-8 text-center text-sm text-slate-500">
+        <div className="mb-2 flex justify-center gap-4">
+          <Link href="/terms" className="hover:text-slate-300">
+            Terms
+          </Link>
+          <Link href="/privacy" className="hover:text-slate-300">
+            Privacy
+          </Link>
+        </div>
         © {new Date().getFullYear()} NameVoid · Built with Next.js, Supabase &
         Stripe
       </footer>

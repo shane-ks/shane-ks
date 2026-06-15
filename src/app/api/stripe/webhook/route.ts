@@ -35,21 +35,39 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId =
       session.metadata?.user_id || session.client_reference_id || null;
+    const credits = Number(session.metadata?.credits || 0);
+    const packId = session.metadata?.pack_id || null;
 
-    if (userId && session.payment_status === "paid") {
+    if (userId && credits > 0 && session.payment_status === "paid") {
       const admin = createSupabaseAdminClient();
-      const { error } = await admin
-        .from("profiles")
-        .update({
-          has_lifetime_pass: true,
-          stripe_customer_id:
-            typeof session.customer === "string" ? session.customer : null,
-        })
-        .eq("id", userId);
 
-      if (error) {
-        console.error("failed to grant lifetime pass", error);
-        return NextResponse.json({ error: "db update failed" }, { status: 500 });
+      // Idempotency: the unique stripe_event_id rejects duplicate deliveries,
+      // so credits are granted exactly once even if Stripe retries.
+      const { error: insertErr } = await admin.from("purchases").insert({
+        user_id: userId,
+        stripe_event_id: event.id,
+        stripe_session_id: session.id,
+        pack_id: packId,
+        credits,
+        amount_cents: session.amount_total ?? 0,
+      });
+
+      if (insertErr) {
+        // 23505 = unique_violation => already processed this event. Ack and move on.
+        if ((insertErr as { code?: string }).code === "23505") {
+          return NextResponse.json({ received: true, duplicate: true });
+        }
+        console.error("failed to record purchase", insertErr);
+        return NextResponse.json({ error: "db error" }, { status: 500 });
+      }
+
+      const { error: grantErr } = await admin.rpc("grant_credits", {
+        p_user_id: userId,
+        p_amount: credits,
+      });
+      if (grantErr) {
+        console.error("failed to grant credits", grantErr);
+        return NextResponse.json({ error: "db error" }, { status: 500 });
       }
     }
   }

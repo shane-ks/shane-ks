@@ -1,7 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { Evidence, NameResult, NameStatus } from "./types";
+import type { NameResult } from "./types";
+import { clampConfidence, cleanEvidence, normalizeStatus, parseJson } from "./parse";
 
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+
+// Hard cap on web searches per research call. Each search costs ~$0.01, so this
+// bounds the cost-of-goods per credit. Tune alongside pricing in lib/credits.ts.
+const MAX_SEARCHES = Number(process.env.ANTHROPIC_MAX_WEB_SEARCHES || 10);
 
 function client() {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -18,20 +23,6 @@ function extractText(message: Anthropic.Messages.Message): string {
     .filter((b): b is Anthropic.Messages.TextBlock => b.type === "text")
     .map((b) => b.text)
     .join("\n");
-}
-
-/** Best-effort extraction of a JSON value embedded in model prose. */
-function parseJson<T>(text: string): T {
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  const candidate = fenced ? fenced[1] : text;
-  // Find the outermost array or object.
-  const start = candidate.search(/[[{]/);
-  if (start === -1) throw new Error("No JSON found in model response");
-  const open = candidate[start];
-  const close = open === "[" ? "]" : "}";
-  const end = candidate.lastIndexOf(close);
-  if (end === -1) throw new Error("Malformed JSON in model response");
-  return JSON.parse(candidate.slice(start, end + 1)) as T;
 }
 
 /**
@@ -61,10 +52,18 @@ export async function brainstormNames(
   });
 
   const names = parseJson<string[]>(extractText(message));
-  return names
-    .map((n) => String(n).trim())
-    .filter(Boolean)
-    .slice(0, count);
+  // De-duplicate case-insensitively while preserving order.
+  const seen = new Set<string>();
+  const unique: string[] = [];
+  for (const raw of names) {
+    const name = String(raw).trim();
+    const key = name.toLowerCase();
+    if (name && !seen.has(key)) {
+      seen.add(key);
+      unique.push(name);
+    }
+  }
+  return unique.slice(0, count);
 }
 
 interface RawResearch {
@@ -73,22 +72,6 @@ interface RawResearch {
   confidence?: number;
   reasoning?: string;
   evidence?: { title?: string; url?: string }[];
-}
-
-function normalizeStatus(s?: string): NameStatus {
-  const v = (s || "").toLowerCase();
-  if (v.startsWith("avail") || v === "free" || v === "open") return "available";
-  if (v.startsWith("tak") || v === "used" || v === "unavailable")
-    return "taken";
-  return "uncertain";
-}
-
-function cleanEvidence(e?: { title?: string; url?: string }[]): Evidence[] {
-  if (!Array.isArray(e)) return [];
-  return e
-    .filter((x) => x && typeof x.url === "string" && /^https?:\/\//.test(x.url))
-    .map((x) => ({ title: (x.title || x.url || "").trim(), url: x.url!.trim() }))
-    .slice(0, 5);
 }
 
 /**
@@ -105,7 +88,7 @@ export async function researchNames(names: string[]): Promise<NameResult[]> {
       {
         type: "web_search_20250305",
         name: "web_search",
-        max_uses: Math.min(names.length * 2 + 2, 20),
+        max_uses: MAX_SEARCHES,
       } satisfies Anthropic.Messages.WebSearchTool20250305,
     ],
     system:
@@ -114,7 +97,8 @@ export async function researchNames(names: string[]): Promise<NameResult[]> {
       "or registered brand using that exact name. A name is 'taken' if a " +
       "real, active organization clearly operates under it; 'available' if no " +
       "meaningful existing use is found; 'uncertain' if evidence is weak or " +
-      "ambiguous. Only cite real URLs you actually found in search results.",
+      "ambiguous. Only cite real URLs you actually found in search results. " +
+      "Be efficient with searches — you have a limited search budget.",
     messages: [
       {
         role: "user",
@@ -145,10 +129,7 @@ export async function researchNames(names: string[]): Promise<NameResult[]> {
     return {
       name,
       status: normalizeStatus(r?.status),
-      confidence:
-        typeof r?.confidence === "number"
-          ? Math.max(0, Math.min(100, Math.round(r.confidence)))
-          : 50,
+      confidence: clampConfidence(r?.confidence),
       reasoning: r?.reasoning,
       evidence: cleanEvidence(r?.evidence),
     } satisfies NameResult;

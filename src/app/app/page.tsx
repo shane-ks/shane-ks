@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import AppClient from "@/components/AppClient";
-
-const FREE_LIMIT = Number(process.env.NEXT_PUBLIC_FREE_SEARCH_LIMIT || 3);
 
 export const dynamic = "force-dynamic";
 
@@ -14,21 +13,25 @@ export default async function AppPage() {
 
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from("profiles")
-    .select("has_lifetime_pass, free_searches_used")
+    .select("credits")
     .eq("id", user.id)
     .maybeSingle();
 
-  const hasPass = profile?.has_lifetime_pass ?? false;
-  const used = profile?.free_searches_used ?? 0;
+  // Self-heal a missing profile row (e.g. if the signup trigger didn't fire).
+  if (!profile) {
+    const admin = createSupabaseAdminClient();
+    await admin
+      .from("profiles")
+      .upsert({ id: user.id, email: user.email }, { onConflict: "id", ignoreDuplicates: true });
+    const reread = await supabase
+      .from("profiles")
+      .select("credits")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = reread.data;
+  }
 
-  return (
-    <AppClient
-      email={user.email ?? ""}
-      initialHasPass={hasPass}
-      initialUsed={used}
-      freeLimit={FREE_LIMIT}
-    />
-  );
+  return <AppClient email={user.email ?? ""} initialCredits={profile?.credits ?? 0} />;
 }

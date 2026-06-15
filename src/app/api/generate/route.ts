@@ -2,12 +2,20 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { brainstormNames, researchNames } from "@/lib/anthropic";
+import { isSameOrigin } from "@/lib/request";
 
 export const maxDuration = 120;
 
-const FREE_LIMIT = Number(process.env.NEXT_PUBLIC_FREE_SEARCH_LIMIT || 3);
+const MAX_PROMPT_LEN = 600;
+// Minimum seconds between generations for one user (cheap abuse throttle on top
+// of credit gating).
+const MIN_INTERVAL_MS = 4000;
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: "bad_origin" }, { status: 403 });
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -24,43 +32,76 @@ export async function POST(request: Request) {
   if (!prompt) {
     return NextResponse.json({ error: "prompt is required" }, { status: 400 });
   }
+  if (prompt.length > MAX_PROMPT_LEN) {
+    return NextResponse.json(
+      { error: "prompt_too_long", message: `Keep your prompt under ${MAX_PROMPT_LEN} characters.` },
+      { status: 400 },
+    );
+  }
 
-  // Load the caller's profile (RLS: own row only).
-  const { data: profile } = await supabase
+  const admin = createSupabaseAdminClient();
+
+  // Make sure a profile row exists (covers the rare case where the signup
+  // trigger didn't run) so credit accounting always has a home.
+  await admin
     .from("profiles")
-    .select("has_lifetime_pass, free_searches_used")
+    .upsert({ id: user.id, email: user.email }, { onConflict: "id", ignoreDuplicates: true });
+
+  // Lightweight rate limit.
+  const { data: prof } = await admin
+    .from("profiles")
+    .select("last_generate_at")
     .eq("id", user.id)
     .maybeSingle();
+  if (prof?.last_generate_at) {
+    const elapsed = Date.now() - new Date(prof.last_generate_at).getTime();
+    if (elapsed < MIN_INTERVAL_MS) {
+      return NextResponse.json(
+        { error: "rate_limited", message: "Slow down a moment and try again." },
+        { status: 429 },
+      );
+    }
+  }
 
-  const hasPass = profile?.has_lifetime_pass ?? false;
-  const used = profile?.free_searches_used ?? 0;
+  // Atomically reserve one credit BEFORE doing expensive work. Returns the new
+  // balance, or -1 if the user has none.
+  const { data: remaining, error: reserveErr } = await admin.rpc("reserve_credit", {
+    p_user_id: user.id,
+  });
 
-  if (!hasPass && used >= FREE_LIMIT) {
+  if (reserveErr) {
+    console.error("reserve_credit failed", reserveErr);
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
+  }
+  if (typeof remaining !== "number" || remaining < 0) {
     return NextResponse.json(
       {
-        error: "limit_reached",
-        message:
-          "You've used all your free searches. Grab the lifetime pass for unlimited access.",
+        error: "no_credits",
+        message: "You're out of credits. Top up to keep searching.",
       },
       { status: 402 },
     );
   }
 
-  let names: string[];
   let results;
   try {
-    names = await brainstormNames(prompt, count);
+    const names = await brainstormNames(prompt, count);
+    if (names.length === 0) throw new Error("no names generated");
     results = await researchNames(names);
   } catch (err) {
     console.error("generation failed", err);
+    // Refund the reserved credit — the user got nothing.
+    await admin.rpc("refund_credit", { p_user_id: user.id });
     return NextResponse.json(
-      { error: "generation_failed", message: "The naming engine hit an error. Please try again." },
+      {
+        error: "generation_failed",
+        message: "The naming engine hit an error. Your credit was refunded — please try again.",
+      },
       { status: 502 },
     );
   }
 
-  // Persist with the service role (users have no insert policy by design).
-  const admin = createSupabaseAdminClient();
+  // Persist the search and its results.
   const { data: search } = await admin
     .from("searches")
     .insert({ user_id: user.id, prompt })
@@ -81,23 +122,10 @@ export async function POST(request: Request) {
     );
   }
 
-  let newUsed = used;
-  if (!hasPass) {
-    const { data } = await admin.rpc("increment_free_search", {
-      p_user_id: user.id,
-    });
-    if (typeof data === "number") newUsed = data;
-  }
-
   return NextResponse.json({
     searchId: search?.id ?? null,
     prompt,
     results,
-    usage: {
-      hasPass,
-      freeSearchesUsed: newUsed,
-      freeLimit: FREE_LIMIT,
-      remaining: hasPass ? null : Math.max(0, FREE_LIMIT - newUsed),
-    },
+    credits: remaining,
   });
 }
