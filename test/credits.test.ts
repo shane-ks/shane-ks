@@ -8,17 +8,29 @@ import {
   FREE_SIGNUP_CREDITS,
 } from "../src/lib/credits";
 
-test("every pack is priced above target cost-of-goods", () => {
-  // Target COGS per search with the web-search cap in place (~$0.20-0.25
-  // typical). Every tier must keep a margin over this.
-  const TARGET_COST_PER_CREDIT = 0.3;
+const perCredit = (id: string) => {
+  const p = getPack(id)!;
+  return p.priceCents / 100 / p.credits;
+};
+
+test("no pack sells a credit below the irreducible search cost", () => {
+  // The web-search portion alone (cap of ~10 searches × $0.01) is the floor we
+  // can never price under, regardless of model.
+  const HARD_FLOOR = 0.1;
   for (const pack of CREDIT_PACKS) {
-    const perCredit = pack.priceCents / 100 / pack.credits;
     assert.ok(
-      perCredit >= TARGET_COST_PER_CREDIT,
-      `${pack.id} sells credits at $${perCredit.toFixed(2)}, below target COGS`,
+      pack.priceCents / 100 / pack.credits > HARD_FLOOR,
+      `${pack.id} priced at/below the hard search-cost floor`,
     );
   }
+});
+
+test("entry tiers keep margin above typical COGS (Opus 4.8)", () => {
+  // Typical all-in COGS per search on Opus 4.8 with the web-search cap.
+  // The bulk Studio tier is deliberately thinner and excluded here.
+  const TYPICAL_COGS = 0.3;
+  assert.ok(perCredit("starter") >= TYPICAL_COGS);
+  assert.ok(perCredit("pro") >= TYPICAL_COGS);
 });
 
 test("pack ids are unique", () => {

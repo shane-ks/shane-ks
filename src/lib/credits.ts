@@ -6,9 +6,10 @@
  * FREE_SIGNUP_CREDITS to try the product.
  *
  * Prices are set above our cost-of-goods per search (Anthropic web search at
- * $10/1,000 plus model tokens, ~$0.20–0.40/search) to keep a healthy margin
- * at every tier. NEVER trust a price or credit amount from the client — always
- * resolve a pack by id here on the server.
+ * $10/1,000 plus Opus 4.8 tokens, ~$0.30–0.45/search) to keep a margin at every
+ * tier — thinnest on the bulk Studio tier, which trades margin for volume.
+ * NEVER trust a price or credit amount from the client — always resolve a pack
+ * by id here on the server.
  */
 
 export interface CreditPack {

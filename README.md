@@ -33,8 +33,9 @@ with the native web-search tool.
 | Studio  | $40   | 120     | $0.33      |
 
 Packs are defined server-side in `src/lib/credits.ts` (the client can never set
-a price). Prices sit comfortably above cost-of-goods (Anthropic web search at
-$10/1,000 plus model tokens ≈ $0.20–0.30/search with the search cap in place).
+a price). Prices sit above cost-of-goods (Anthropic web search at $10/1,000
+plus Opus 4.8 tokens ≈ $0.30–0.45/search with the search cap in place; the bulk
+Studio tier is deliberately thinner-margin).
 Purchases run through Stripe Checkout; a signature-verified, **idempotent**
 webhook grants the credits.
 
@@ -112,7 +113,8 @@ cp .env.example .env.local
 
 Add an `ANTHROPIC_API_KEY` from [console.anthropic.com](https://console.anthropic.com).
 The naming engine uses the model in `ANTHROPIC_MODEL` (default
-`claude-sonnet-4-6`) with the web-search tool.
+`claude-opus-4-8` for the highest-quality names; set `claude-sonnet-4-6` to
+roughly halve token cost) with the web-search tool.
 
 ### 4. Stripe
 
@@ -149,7 +151,7 @@ See `.env.example`. Summary:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY`   | Supabase anon/publishable key            |
 | `SUPABASE_SERVICE_ROLE_KEY`       | Server-only; writes results, grants credits |
 | `ANTHROPIC_API_KEY`               | Naming + web research                    |
-| `ANTHROPIC_MODEL`                 | Model id (default `claude-sonnet-4-6`)   |
+| `ANTHROPIC_MODEL`                 | Model id (default `claude-opus-4-8`)     |
 | `ANTHROPIC_MAX_WEB_SEARCHES`      | Per-search web-search cap (default 10)   |
 | `STRIPE_SECRET_KEY`               | Stripe API                               |
 | `STRIPE_WEBHOOK_SECRET`           | Verify webhook signatures                |

@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { NameResult } from "./types";
 import { clampConfidence, cleanEvidence, normalizeStatus, parseJson } from "./parse";
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
 
 // Hard cap on web searches per research call. Each search costs ~$0.01, so this
 // bounds the cost-of-goods per credit. Tune alongside pricing in lib/credits.ts.
