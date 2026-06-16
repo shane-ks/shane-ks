@@ -2,8 +2,9 @@
  * Credit packs — the single, server-trusted source of truth for pricing.
  *
  * 1 credit = 1 search (one prompt → a batch of brandable names, each checked
- * for availability against the live web with evidence). New accounts get
- * FREE_SIGNUP_CREDITS to try the product.
+ * for availability against the live web with evidence). The product is fully
+ * paid — FREE_SIGNUP_CREDITS is 0; users buy a pack before their first run.
+ * (Bump it to grant a trial allotment, and update migration 0004 to match.)
  *
  * Prices are set above our cost-of-goods per search (Anthropic web search at
  * $10/1,000 plus Opus 4.8 tokens, ~$0.30–0.45/search) to keep a margin at every
@@ -24,7 +25,7 @@ export interface CreditPack {
   blurb: string;
 }
 
-export const FREE_SIGNUP_CREDITS = 3;
+export const FREE_SIGNUP_CREDITS = 0;
 
 // Per-action credit costs. A name search returns a batch of names; a brand kit
 // returns several vector logo concepts plus a palette and font pairing, so it

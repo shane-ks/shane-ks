@@ -19,7 +19,7 @@ are complete and checked.
 ## 1. Monetization correctness & integrity
 
 - [x] **Switch from lifetime pass to credits.** 1 credit = 1 search; new accounts
-  get 3 free credits; credits sold in one-time packs. Pricing lives in a single
+  start with 0 credits (fully paid); credits sold in one-time packs. Pricing lives in a single
   server-trusted catalog (`src/lib/credits.ts`) — the client can never set a
   price or credit amount.
 - [x] **Webhook idempotency.** Stripe retries deliver the same event id. A

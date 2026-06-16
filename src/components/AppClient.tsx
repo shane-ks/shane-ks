@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { NameResult } from "@/lib/types";
-import { FREE_SIGNUP_CREDITS, NAME_CREDIT_COST } from "@/lib/credits";
+import { NAME_CREDIT_COST } from "@/lib/credits";
 import ResultCard from "./ResultCard";
 import PackCards from "./PackCards";
 import Wordmark from "./Wordmark";
@@ -34,7 +34,8 @@ export default function AppClient({ email, initialCredits }: Props) {
   const [notice, setNotice] = useState<string | null>(null);
 
   const [credits, setCredits] = useState(initialCredits);
-  const [showPacks, setShowPacks] = useState(false);
+  // New / out-of-credit users land straight on the buy panel.
+  const [showPacks, setShowPacks] = useState(initialCredits <= 0);
   const [busyPack, setBusyPack] = useState<string | null>(null);
 
   const refreshMe = useCallback(async () => {
@@ -188,10 +189,11 @@ export default function AppClient({ email, initialCredits }: Props) {
         {/* Shared top-up panel */}
         {showPacks && (
           <div className="mb-8">
-            <h2 className="mb-1 text-xl font-semibold">Top up your credits</h2>
+            <h2 className="mb-1 text-xl font-semibold">
+              {credits <= 0 ? "Buy credits to get started" : "Top up your credits"}
+            </h2>
             <p className="mb-5 text-sm text-slate-400">
-              One-time purchase. Credits never expire. New accounts start with{" "}
-              {FREE_SIGNUP_CREDITS} free.
+              One-time purchase. Pay only for what you use — credits never expire.
             </p>
             <PackCards onBuy={handleBuy} busyPack={busyPack} />
           </div>

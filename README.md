@@ -27,7 +27,9 @@ One shared pool of credits funds everything:
 
 - **1 credit = 1 name search** (a full batch of names, each availability-checked).
 - **2 credits = 1 brand kit** (several logo concepts + palette + fonts).
-- New accounts start with **3 free credits**.
+- **Fully paid** — new accounts start with **0 credits** and buy a pack before
+  their first run (set `FREE_SIGNUP_CREDITS` > 0 and update migration `0004` to
+  offer a trial instead).
 - Credits are sold in **one-time packs** (no subscription) — buy once, use
   anytime, credits never expire:
 
@@ -93,6 +95,7 @@ supabase/migrations/
   0001_init.sql               profiles, searches, name_results, RLS
   0002_credits.sql            credits, purchases (idempotency), credit RPCs
   0003_branding.sql           brand_kits + multi-credit reserve/refund RPCs
+  0004_paywall.sql            new accounts start with 0 credits (fully paid)
 test/                         unit tests (npm test)
 ```
 
@@ -110,11 +113,12 @@ cp .env.example .env.local
 ### 2. Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. Run the migrations in order — `0001_init.sql`, `0002_credits.sql`, then
-   `0003_branding.sql` (SQL Editor, or `supabase db push` with the CLI). They
-   create the `profiles`, `searches`, `name_results`, `purchases`, and
-   `brand_kits` tables, RLS policies, the new-user trigger, and the credit RPCs
-   (`reserve_credit(s)`, `refund_credit(s)`, `grant_credits`).
+2. Run the migrations in order — `0001_init.sql`, `0002_credits.sql`,
+   `0003_branding.sql`, then `0004_paywall.sql` (SQL Editor, or `supabase db
+   push` with the CLI). They create the `profiles`, `searches`, `name_results`,
+   `purchases`, and `brand_kits` tables, RLS policies, the new-user trigger
+   (new accounts start at 0 credits), and the credit RPCs (`reserve_credit(s)`,
+   `refund_credit(s)`, `grant_credits`).
 3. Copy your Project URL + anon key + **service role** key into `.env.local`.
 4. **Auth → URL Configuration**: set the Site URL and add
    `http://localhost:3000/auth/callback` (and your production equivalent) as a

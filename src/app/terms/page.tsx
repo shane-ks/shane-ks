@@ -38,12 +38,12 @@ export default function TermsPage() {
         <section>
           <h2 className="mb-2 text-lg font-semibold text-white">3. Credits & payments</h2>
           <p>
-            Searches are paid for with credits. New accounts receive a free
-            allotment of credits. Additional credits are sold in one-time packs
-            and processed by Stripe. Credits are consumed per search; a credit is
-            refunded automatically if a search fails to produce results. Purchased
-            credits are non-transferable. Except where required by law, payments
-            are non-refundable.
+            Searches and brand kits are paid for with credits. Credits are sold
+            in one-time packs and processed by Stripe; there is no subscription.
+            Credits are consumed per action and are refunded automatically if an
+            action fails to produce results. Purchased credits are
+            non-transferable and never expire. Except where required by law,
+            payments are non-refundable.
           </p>
         </section>
         <section>

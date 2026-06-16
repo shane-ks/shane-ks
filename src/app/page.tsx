@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
-import { FREE_SIGNUP_CREDITS, LOGO_CREDIT_COST } from "@/lib/credits";
+import { LOGO_CREDIT_COST } from "@/lib/credits";
 import type { NameResult } from "@/lib/types";
 import Wordmark from "@/components/Wordmark";
 import RadarHero from "@/components/RadarHero";
@@ -132,7 +132,7 @@ export default function Home() {
               href="/app"
               className="glow rounded-xl bg-brand-600 px-7 py-3.5 text-center text-base font-semibold text-white transition hover:bg-brand-500"
             >
-              Start scanning free
+              Get started
             </Link>
             <Link
               href="#how"
@@ -142,9 +142,9 @@ export default function Home() {
             </Link>
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
-            <span>✓ {FREE_SIGNUP_CREDITS} free credits</span>
-            <span>✓ No credit card</span>
+            <span>✓ Pay only for what you use</span>
             <span>✓ Evidence for every taken name</span>
+            <span>✓ Credits never expire</span>
           </div>
         </div>
 
@@ -263,7 +263,7 @@ export default function Home() {
         </p>
         <PackCards />
         <p className="mt-6 text-center text-xs text-slate-500">
-          Every account starts with {FREE_SIGNUP_CREDITS} free credits. No subscription.
+          No subscription — pay only for what you use, and credits never expire.
         </p>
       </section>
 
@@ -281,7 +281,7 @@ export default function Home() {
           />
           <Faq
             q="What is a credit?"
-            a={`One credit runs one full scan — a batch of brandable names, each checked against the live web. New accounts get ${FREE_SIGNUP_CREDITS} free credits, and a credit is automatically refunded if a scan fails.`}
+            a="One credit runs one full scan — a batch of brandable names, each checked against the live web. Credits are a one-time purchase (no subscription), and a credit is automatically refunded if a scan fails."
           />
           <Faq
             q="Can it design a logo too?"
@@ -308,7 +308,7 @@ export default function Home() {
             href="/app"
             className="mt-8 inline-block rounded-xl bg-white px-8 py-3.5 text-base font-semibold text-slate-900 transition hover:bg-slate-100"
           >
-            Start scanning free →
+            Get started →
           </Link>
         </div>
       </section>
